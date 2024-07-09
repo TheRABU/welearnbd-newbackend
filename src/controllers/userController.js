@@ -124,7 +124,7 @@ const registerUser = async (req, res, next) => {
     };
     // send email with nodemailer
     try {
-      await sendEmailWithNodeMailer(emailData);
+      // await sendEmailWithNodeMailer(emailData);
     } catch (error) {
       throw new Error(error.message);
     }
