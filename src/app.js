@@ -5,6 +5,7 @@ const userRouter = require("./routers/userRouter");
 const seedRouter = require("./routers/seedRouter.js");
 const courseRouter = require("./routers/courseRouter.js");
 const { errorResponse } = require("./controllers/responseController.js");
+const cors = require("cors");
 require("dotenv").config();
 const app = express();
 
@@ -14,6 +15,7 @@ const rateLimiter = rateLimit({
   message: "Rate limit exceeded for this ip. Try again later",
 });
 
+app.use(cors());
 app.use(rateLimiter);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

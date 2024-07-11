@@ -7,9 +7,9 @@ const UPLOAD_FILE_PATH = "public/images/users";
 
 const MAX_FILE_SIZE = Number(`${process.env.MAX_FILE_SIZE}`) || 1024 * 1024 * 2;
 const ALLOWED_FILE_EXTENTIONS = process.env.ALLOWED_FILE_EXTENTIONS || [
-  "jpg",
-  "jpeg",
-  "png",
+  "image/jpg",
+  "image/jpeg",
+  "image/png",
 ];
 
 module.exports = {

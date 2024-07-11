@@ -102,6 +102,8 @@ const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
+    const imageBufferString = req.file.buffer.toString("base64");
+
     const userIsExist = await User.exists({ email: email });
     if (userIsExist) {
       throw new createError(409, "User with email already exists");
@@ -109,7 +111,7 @@ const registerUser = async (req, res, next) => {
 
     // create jwt
     const token = createJSONWebToken(
-      { name, email, password },
+      { name, email, password, image: imageBufferString },
       process.env.JWT_SECRET_TOKEN,
       "10m"
     );
@@ -188,10 +190,47 @@ const activateUserAccount = async (req, res, next) => {
   }
 };
 
+const updateUserAccount = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const options = { password: 0 };
+    const user = await findWithId(User, id, options);
+
+    const updateOptions = {
+      new: true,
+      runValidators: true,
+      context: "query",
+    };
+    let updates = {};
+    const allowedFields = ["name", "password"];
+    for (const key in req.body) {
+      if (allowedFields.includes(key)) {
+        updates[key] = req.body[key];
+      } else if (key === "email") {
+        throw createError(400, "Email can not be updated");
+      }
+    }
+
+    const image = req.file.path;
+    if (image) {
+      if (image.size > 1024 * 1024 * 2) {
+        throw new Error("File is too large must be less than 2 MB");
+      }
+      updates.image = image;
+      // replace the old image
+      user.image !== "default.jpeg" && deleteImage(user.image);
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error();
+  }
+};
+
 module.exports = {
   getAllUsers,
   getOneUser,
   deleteUser,
   registerUser,
   activateUserAccount,
+  updateUserAccount,
 };

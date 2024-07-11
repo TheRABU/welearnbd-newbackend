@@ -31,8 +31,9 @@ const userSchema = new Schema(
       // set: (v) => bcrypt.hashSync(v, bcrypt.genSaltSync(10)),
     },
     image: {
-      type: String,
-      default: "public/images/users/userImage.png",
+      type: Buffer,
+      contentType: String,
+      required: [true, "Image is required"],
     },
     isAdmin: {
       type: Boolean,

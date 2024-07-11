@@ -7,6 +7,7 @@ const deleteImage = async (userImagePath) => {
     console.log("user image was deleted");
   } catch (error) {
     console.error("User image does not exist", err.message);
+    throw error;
   }
 };
 
