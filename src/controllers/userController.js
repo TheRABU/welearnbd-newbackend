@@ -7,7 +7,7 @@ const fs = require("fs");
 const { deleteImage } = require("../services/deleteImage.js");
 const { createJSONWebToken } = require("../services/createJWT.js");
 const sendEmailWithNodeMailer = require("../services/sendEmail.js");
-
+const cloudinary = require("../cloudinary/cloudinary.js");
 // find all users using search and also with pagination
 const getAllUsers = async (req, res) => {
   try {
@@ -102,16 +102,27 @@ const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    const imageBufferString = req.file?.buffer.toString("base64");
-
+    // const imageBufferString = req.file?.buffer.toString("base64");
+    const image = req.file.path;
+    if (image && image.size > 1024 * 1024 * 2) {
+      throw createError(400, "File is too large. It must be less than 2 MB");
+    }
     const userIsExist = await User.exists({ email: email });
     if (userIsExist) {
       throw new createError(409, "User with email already exists");
     }
 
+    const tokenPayload = {
+      name,
+      email,
+      password,
+    };
+    if (image) {
+      tokenPayload.image = image;
+    }
     // create jwt
     const token = createJSONWebToken(
-      { name, email, password, image: imageBufferString },
+      tokenPayload,
       process.env.JWT_SECRET_TOKEN,
       "10m"
     );
@@ -152,6 +163,7 @@ const registerUser = async (req, res, next) => {
 const activateUserAccount = async (req, res, next) => {
   try {
     const token = req.body.token;
+
     if (!token) {
       return next(createError(404, "Token not found"));
     }
@@ -177,7 +189,13 @@ const activateUserAccount = async (req, res, next) => {
     if (userExists) {
       return next(createError(409, "User with this email already exists"));
     }
-
+    const image = decoded.image;
+    if (image) {
+      const response = await cloudinary.uploader.upload(image, {
+        folder: "weLearnBD",
+      });
+      decoded.image = response.secure_url;
+    }
     await User.create(decoded);
 
     return successResponse(res, {

@@ -7,7 +7,7 @@ const {
   registerUser,
   updateUserAccount,
 } = require("../controllers/userController");
-const upload = require("../middlewares/uploadFile");
+const uploadUserImage = require("../middlewares/uploadFile");
 const { validateUserRegistration } = require("../validators/auth");
 const runValidation = require("../validators");
 const { isLoggedIn, isLoggedOut } = require("../middlewares/auth");
@@ -19,7 +19,7 @@ userRouter.route("/:id").delete(isLoggedIn, deleteUser);
 userRouter
   .route("/register")
   .post(
-    upload.single("image"),
+    uploadUserImage.single("image"),
     isLoggedOut,
     validateUserRegistration,
     runValidation,
@@ -28,6 +28,6 @@ userRouter
 userRouter.route("/verify").post(isLoggedOut, activateUserAccount);
 userRouter
   .route("/update/:id")
-  .put(upload.single("image"), isLoggedIn, updateUserAccount);
+  .put(uploadUserImage.single("image"), isLoggedIn, updateUserAccount);
 
 module.exports = userRouter;

@@ -22,9 +22,10 @@ const handleLogin = async (req, res, next) => {
     if (user.isBanned) {
       throw createError(403, "User is banned please contact the authority");
     }
+    const userWithoutPass = await User.findOne({ email }).select("-password");
     // create jwt
     const accessToken = createJSONWebToken(
-      { _id: user._id },
+      { user },
       process.env.ACCESS_TOKEN_SECRET,
       "10m"
     );
@@ -37,7 +38,7 @@ const handleLogin = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: "user logged in successfully",
-      payload: {},
+      payload: { userWithoutPass },
     });
   } catch (error) {
     next(error);

@@ -31,8 +31,9 @@ const userSchema = new Schema(
       // set: (v) => bcrypt.hashSync(v, bcrypt.genSaltSync(10)),
     },
     image: {
-      type: Buffer,
-      contentType: String,
+      // type: Buffer,
+      // contentType: String,
+      type: String,
     },
     isAdmin: {
       type: Boolean,
