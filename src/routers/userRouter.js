@@ -10,20 +10,24 @@ const {
 const upload = require("../middlewares/uploadFile");
 const { validateUserRegistration } = require("../validators/auth");
 const runValidation = require("../validators");
+const { isLoggedIn, isLoggedOut } = require("../middlewares/auth");
 const userRouter = express.Router();
 // /api/v1/users
-userRouter.route("/").get(getAllUsers);
-userRouter.route("/:id").get(getOneUser);
-userRouter.route("/:id").delete(deleteUser);
+userRouter.route("/").get(isLoggedIn, getAllUsers);
+userRouter.route("/:id").get(isLoggedIn, getOneUser);
+userRouter.route("/:id").delete(isLoggedIn, deleteUser);
 userRouter
   .route("/register")
   .post(
     upload.single("image"),
+    isLoggedOut,
     validateUserRegistration,
     runValidation,
     registerUser
   );
-userRouter.route("/verify").post(activateUserAccount);
-userRouter.route("/update/:id").put(upload.single("image"), updateUserAccount);
+userRouter.route("/verify").post(isLoggedOut, activateUserAccount);
+userRouter
+  .route("/update/:id")
+  .put(upload.single("image"), isLoggedIn, updateUserAccount);
 
 module.exports = userRouter;

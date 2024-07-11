@@ -24,7 +24,7 @@ const handleLogin = async (req, res, next) => {
     }
     // create jwt
     const accessToken = createJSONWebToken(
-      { email },
+      { _id: user._id },
       process.env.ACCESS_TOKEN_SECRET,
       "10m"
     );
