@@ -5,6 +5,7 @@ const {
   deleteUser,
   activateUserAccount,
   registerUser,
+  updateUserAccount,
 } = require("../controllers/userController");
 const upload = require("../middlewares/uploadFile");
 const { validateUserRegistration } = require("../validators/auth");
@@ -14,13 +15,15 @@ const userRouter = express.Router();
 userRouter.route("/").get(getAllUsers);
 userRouter.route("/:id").get(getOneUser);
 userRouter.route("/:id").delete(deleteUser);
-userRouter.route("/register").post(
-  upload.single("image"),
-  validateUserRegistration,
-
-  runValidation,
-  registerUser
-);
+userRouter
+  .route("/register")
+  .post(
+    upload.single("image"),
+    validateUserRegistration,
+    runValidation,
+    registerUser
+  );
 userRouter.route("/verify").post(activateUserAccount);
+userRouter.route("/update/:id").put(upload.single("image"), updateUserAccount);
 
 module.exports = userRouter;

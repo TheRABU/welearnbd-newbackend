@@ -1,11 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const userRouter = require("./routers/userRouter");
 const seedRouter = require("./routers/seedRouter.js");
 const courseRouter = require("./routers/courseRouter.js");
 const { errorResponse } = require("./controllers/responseController.js");
 const cors = require("cors");
+const authRouter = require("./routers/authRouter.js");
 require("dotenv").config();
 const app = express();
 
@@ -17,10 +19,12 @@ const rateLimiter = rateLimit({
 
 app.use(cors());
 app.use(rateLimiter);
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/seed", seedRouter);
 app.use("/api/v1/courses", courseRouter);
 

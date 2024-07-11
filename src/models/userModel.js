@@ -33,7 +33,6 @@ const userSchema = new Schema(
     image: {
       type: Buffer,
       contentType: String,
-      required: [true, "Image is required"],
     },
     isAdmin: {
       type: Boolean,

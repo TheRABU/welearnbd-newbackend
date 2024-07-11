@@ -1,6 +1,3 @@
-// registration validation
-// login validation
-
 const { body } = require("express-validator");
 
 const validateUserRegistration = [
@@ -16,21 +13,17 @@ const validateUserRegistration = [
     .notEmpty()
     .withMessage("Password is required")
     .isLength({ min: 6, max: 20 })
-    .withMessage("minimum password 6 and maximum chars 20")
-    .matches(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/
-    )
+    .withMessage("Password must be between 6 and 20 characters")
+    .matches(/^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,20}$/)
     .withMessage(
       "Password should contain at least one uppercase letter, one lowercase letter, one number, and one special character."
     ),
-  body("image")
-    .custom((value, { req }) => {
-      if (!req.file || !req.file.buffer) {
-        throw new Error("User image is required");
-      }
-      return true;
-    })
-    .withMessage("User image is required for new account"),
+  // body("image").custom((value, { req }) => {
+  //   if (!req.file || !req.file.buffer) {
+  //     throw new Error("User image is required for new account");
+  //   }
+  //   return true;
+  // }),
 ];
 
 module.exports = { validateUserRegistration };

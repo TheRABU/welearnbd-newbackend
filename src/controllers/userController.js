@@ -102,7 +102,7 @@ const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    const imageBufferString = req.file.buffer.toString("base64");
+    const imageBufferString = req.file?.buffer.toString("base64");
 
     const userIsExist = await User.exists({ email: email });
     if (userIsExist) {
@@ -193,8 +193,6 @@ const activateUserAccount = async (req, res, next) => {
 const updateUserAccount = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const options = { password: 0 };
-    const user = await findWithId(User, id, options);
 
     const updateOptions = {
       new: true,
@@ -202,7 +200,7 @@ const updateUserAccount = async (req, res, next) => {
       context: "query",
     };
     let updates = {};
-    const allowedFields = ["name", "password"];
+    const allowedFields = ["name", "password", "image"];
     for (const key in req.body) {
       if (allowedFields.includes(key)) {
         updates[key] = req.body[key];
@@ -210,8 +208,16 @@ const updateUserAccount = async (req, res, next) => {
         throw createError(400, "Email can not be updated");
       }
     }
+    // updating fields
 
-    const image = req.file.path;
+    // if(req.body.name){
+    //   updates.name = req.body.name;
+    // }
+    // if(req.body.password){
+    //   updates.password = req.body.password;
+    // }
+
+    const image = req.file?.path;
     if (image) {
       if (image.size > 1024 * 1024 * 2) {
         throw new Error("File is too large must be less than 2 MB");
@@ -220,6 +226,20 @@ const updateUserAccount = async (req, res, next) => {
       // replace the old image
       user.image !== "default.jpeg" && deleteImage(user.image);
     }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      updates,
+      updateOptions
+    );
+    if (!updatedUser) {
+      throw createError(404, "could not update user");
+    }
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User information updated successfully",
+      payload: updatedUser,
+    });
   } catch (error) {
     console.log(error.message);
     throw new Error();
