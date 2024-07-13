@@ -27,10 +27,10 @@ const handleLogin = async (req, res, next) => {
     const accessToken = createJSONWebToken(
       { user },
       process.env.ACCESS_TOKEN_SECRET,
-      "10m"
+      "20m"
     );
     res.cookie("access_token", accessToken, {
-      maxAge: 15 * 60 * 1000, //15min,
+      maxAge: 20 * 60 * 1000, //15min,
       httpOnly: true,
       secure: true,
       sameSite: "none",

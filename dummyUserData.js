@@ -19,11 +19,13 @@ const data = {
       name: "Akhandanand Tripathi",
       email: "kaleenbhaiya@mirzapur.com",
       password: "Kaleen12345!@",
+      newPass: "kingOfMirzapur123!",
     },
     {
       name: "Beena Tripathi",
       email: "beena@mirzapur.com",
       password: "Munna12345!@",
+      newPass: "beNa1234!",
     },
     {
       name: "Gamgamini Gupta",

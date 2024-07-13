@@ -8,6 +8,7 @@ const {
   updateUserAccount,
 
   manageUserStatus,
+  updatePassword,
 } = require("../controllers/userController");
 const uploadUserImage = require("../middlewares/uploadFile");
 const { validateUserRegistration } = require("../validators/auth");
@@ -33,5 +34,6 @@ userRouter
   .put(uploadUserImage.single("image"), isLoggedIn, updateUserAccount);
 
 userRouter.route("/status/:id").put(isLoggedIn, isAdmin, manageUserStatus);
+userRouter.route("/update-pass/:id").put(isLoggedIn, updatePassword);
 
 module.exports = userRouter;

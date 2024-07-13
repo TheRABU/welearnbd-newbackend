@@ -1,5 +1,6 @@
 const createError = require("http-errors");
 const jwt = require("jsonwebtoken");
+
 const isLoggedIn = async (req, res, next) => {
   try {
     const token = req.cookies.access_token;

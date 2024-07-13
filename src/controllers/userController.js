@@ -1,6 +1,7 @@
 const User = require("../models/userModel.js");
 const createError = require("http-errors");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 const { successResponse } = require("./responseController.js");
 const { findWithId } = require("../services/findWithId.js");
 const fs = require("fs");
@@ -8,6 +9,7 @@ const { deleteImage } = require("../services/deleteImage.js");
 const { createJSONWebToken } = require("../services/createJWT.js");
 const sendEmailWithNodeMailer = require("../services/sendEmail.js");
 const cloudinary = require("../cloudinary/cloudinary.js");
+const { default: mongoose } = require("mongoose");
 
 // find all users using search and also with pagination
 const getAllUsers = async (req, res) => {
@@ -266,35 +268,35 @@ const updateUserAccount = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error.message);
-    throw new Error();
+    next(error);
   }
 };
 
-const banUser = async (req, res, next) => {
-  try {
-    const userId = req.params.userId;
-    await findWithId(User, userId);
-    const updates = { isBanned: true };
-    const updateOptions = { new: true, runValidators: true, context: "query" };
+// const banUser = async (req, res, next) => {
+//   try {
+//     const userId = req.params.userId;
+//     await findWithId(User, userId);
+//     const updates = { isBanned: true };
+//     const updateOptions = { new: true, runValidators: true, context: "query" };
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      updates,
-      updateOptions
-    ).select("-password");
+//     const updatedUser = await User.findByIdAndUpdate(
+//       userId,
+//       updates,
+//       updateOptions
+//     ).select("-password");
 
-    if (!updatedUser) {
-      throw createError(404, "Could not ban user!!");
-    }
-    return successResponse(res, {
-      statusCode: 200,
-      message: "User banned successfully",
-      payload: updatedUser,
-    });
-  } catch (error) {
-    console.log("Error at ban user controller", error.message);
-  }
-};
+//     if (!updatedUser) {
+//       throw createError(404, "Could not ban user!!");
+//     }
+//     return successResponse(res, {
+//       statusCode: 200,
+//       message: "User banned successfully",
+//       payload: updatedUser,
+//     });
+//   } catch (error) {
+//     console.log("Error at ban user controller", error.message);
+//   }
+// };
 
 const manageUserStatus = async (req, res, next) => {
   try {
@@ -338,7 +340,50 @@ const manageUserStatus = async (req, res, next) => {
       payload: updatedUser,
     });
   } catch (error) {
+    if (error instanceof mongoose.Error.CastError) {
+      throw createError(400, "Invalid id");
+    }
     console.log(error.message);
+    next(error);
+  }
+};
+
+const updatePassword = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const { email, oldPassword, newPassword } = req.body;
+    // check if user exist
+    // const user = await User.findOne({ email: email });
+    const user = await findWithId(User, userId);
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    // compare password
+    const isPasswordMatched = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordMatched) {
+      throw createError(400, "Old Password do not match");
+    }
+
+    // const update = { $set: { password: newPassword } };
+    // const updateOptions = { new: true };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { password: newPassword },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      throw createError(400, "Could not change your password try again later.");
+    }
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Password updated successfully",
+      payload: { updatedUser },
+    });
+  } catch (error) {
+    console.log("Error at update password controller", error.message);
     next(error);
   }
 };
@@ -351,4 +396,5 @@ module.exports = {
   activateUserAccount,
   updateUserAccount,
   manageUserStatus,
+  updatePassword,
 };
