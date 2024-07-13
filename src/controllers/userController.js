@@ -8,6 +8,7 @@ const { deleteImage } = require("../services/deleteImage.js");
 const { createJSONWebToken } = require("../services/createJWT.js");
 const sendEmailWithNodeMailer = require("../services/sendEmail.js");
 const cloudinary = require("../cloudinary/cloudinary.js");
+
 // find all users using search and also with pagination
 const getAllUsers = async (req, res) => {
   try {
@@ -269,6 +270,79 @@ const updateUserAccount = async (req, res, next) => {
   }
 };
 
+const banUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    await findWithId(User, userId);
+    const updates = { isBanned: true };
+    const updateOptions = { new: true, runValidators: true, context: "query" };
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updates,
+      updateOptions
+    ).select("-password");
+
+    if (!updatedUser) {
+      throw createError(404, "Could not ban user!!");
+    }
+    return successResponse(res, {
+      statusCode: 200,
+      message: "User banned successfully",
+      payload: updatedUser,
+    });
+  } catch (error) {
+    console.log("Error at ban user controller", error.message);
+  }
+};
+
+const manageUserStatus = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const action = req.body.action;
+
+    let update;
+    let successMessage;
+    if (action === "ban") {
+      update = { isBanned: true };
+      successMessage = "User was banned successfully";
+    } else if (action === "unban") {
+      update = { isBanned: false };
+      successMessage = "User was unbanned successfully";
+    } else if (action === "teacher") {
+      update = { isCourseTeacher: true };
+      successMessage = "You have been updated as a Teacher";
+    } else {
+      throw createError(
+        400,
+        `Invalid Action. you can only "ban" or "unban" action.`
+      );
+    }
+
+    const updateOptions = {
+      new: true,
+      runValidators: true,
+      context: "query",
+    };
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      update,
+      updateOptions
+    ).select("-password");
+    if (!updatedUser) {
+      throw createError(400, "Could not update user status!");
+    }
+    return successResponse(res, {
+      statusCode: 200,
+      message: successMessage,
+      payload: updatedUser,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
 module.exports = {
   getAllUsers,
   getOneUser,
@@ -276,4 +350,5 @@ module.exports = {
   registerUser,
   activateUserAccount,
   updateUserAccount,
+  manageUserStatus,
 };
