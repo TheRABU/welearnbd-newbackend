@@ -103,7 +103,7 @@ const registerUser = async (req, res, next) => {
     const { name, email, password } = req.body;
 
     // const imageBufferString = req.file?.buffer.toString("base64");
-    const image = req.file.path;
+    const image = req.file?.path;
     if (image && image.size > 1024 * 1024 * 2) {
       throw createError(400, "File is too large. It must be less than 2 MB");
     }
@@ -132,7 +132,7 @@ const registerUser = async (req, res, next) => {
       subject: "Account activation email from Welearnbd",
       html: `
         <h2> Hello there ${name}, Welcome to WelearnBD.com </h2>
-        <p>Click here in this link to verify your account. <a href="${process.env.CLIENT_URL}/api/v1/users/activate/${token}" target="_blank">Activate Now</a></p>
+        <p>Click here in this link to verify your account. <a href="${process.env.CLIENT_URL}/verify/${token}" target="_blank">Activate Now</a></p>
       `,
     };
     // send email with nodemailer
@@ -191,10 +191,15 @@ const activateUserAccount = async (req, res, next) => {
     }
     const image = decoded.image;
     if (image) {
-      const response = await cloudinary.uploader.upload(image, {
-        folder: "weLearnBD",
-      });
-      decoded.image = response.secure_url;
+      try {
+        const response = await cloudinary.uploader.upload(image, {
+          folder: "weLearnBD/users/profile",
+        });
+        decoded.image = response.secure_url;
+      } catch (error) {
+        console.error("Cloudinary upload error:", error.message);
+        throw new createError(500, "Image upload failed");
+      }
     }
     await User.create(decoded);
 
