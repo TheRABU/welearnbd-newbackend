@@ -9,11 +9,19 @@ const {
 
   manageUserStatus,
   updatePassword,
+  newUserSignUpMethod,
+  testAdmin,
 } = require("../controllers/userController");
 const uploadUserImage = require("../middlewares/uploadFile");
 const { validateUserRegistration } = require("../validators/auth");
 const runValidation = require("../validators");
-const { isLoggedIn, isLoggedOut, isAdmin } = require("../middlewares/auth");
+const {
+  isLoggedIn,
+  isLoggedOut,
+  isAdmin,
+  authenticateToken,
+  verifyAdmin,
+} = require("../middlewares/auth");
 const userRouter = express.Router();
 // /api/v1/users
 userRouter.route("/").get(isLoggedIn, getAllUsers);
@@ -35,5 +43,9 @@ userRouter
 
 userRouter.route("/status/:id").put(isLoggedIn, isAdmin, manageUserStatus);
 userRouter.route("/update-pass/:id").put(isLoggedIn, updatePassword);
+
+userRouter.route("/new-user-signup").post(newUserSignUpMethod);
+
+userRouter.route("/test-admin").get(authenticateToken, verifyAdmin, testAdmin);
 
 module.exports = userRouter;

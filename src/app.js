@@ -18,7 +18,7 @@ const rateLimiter = rateLimit({
 });
 
 app.use(cors());
-app.use(rateLimiter);
+// app.use(rateLimiter);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
