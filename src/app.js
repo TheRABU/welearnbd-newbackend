@@ -8,6 +8,7 @@ const courseRouter = require("./routers/courseRouter.js");
 const { errorResponse } = require("./controllers/responseController.js");
 const cors = require("cors");
 const authRouter = require("./routers/authRouter.js");
+const teacherRouter = require("./routers/teacherRouter.js");
 require("dotenv").config();
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/seed", seedRouter);
 app.use("/api/v1/courses", courseRouter);
+app.use("/api/v1/teachers", teacherRouter);
 
 app.get("/", async (req, res) => {
   res.json("Server choltase");

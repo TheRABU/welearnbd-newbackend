@@ -164,7 +164,7 @@ const registerUser = async (req, res, next) => {
 };
 
 // new method to signup user
-const newUserSignUpMethod = async (req, res) => {
+const newUserSignUpMethod = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
@@ -186,23 +186,31 @@ const newUserSignUpMethod = async (req, res) => {
     };
 
     // create jwt
-    const token = createJSONWebToken(
-      tokenPayload,
-      process.env.JWT_SECRET_TOKEN,
-      "1hr"
-    );
+    // const token = createJSONWebToken(
+    //   tokenPayload,
+    //   process.env.JWT_SECRET_TOKEN,
+    //   "1hr"
+    // );
 
     return successResponse(res, {
       statusCode: 200,
       message: "User registered successfully",
-      payload: token,
+      payload: savedUser,
     });
   } catch (error) {
     console.error(
       "Error during creating user using new controller:",
       error.message
     );
-    return next(createError(500, "Internal Server Error"));
+    throw error;
+  }
+};
+
+// new method to login user
+const newLoginMethod = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
   }
 };
 
