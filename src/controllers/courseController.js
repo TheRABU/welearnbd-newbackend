@@ -1,5 +1,9 @@
 const Course = require("../models/courseModel.js");
 
+/*
+ TODO: Create newCourseController;
+*/
+
 // get all courses
 const getAllCourses = async (req, res) => {
   try {

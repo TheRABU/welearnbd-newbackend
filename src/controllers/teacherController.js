@@ -1,9 +1,9 @@
 const Teacher = require("../models/teacherModel");
 const createError = require("http-errors");
 const User = require("../models/userModel");
-const { successResponse } = require("./responseController");
+const { successResponse, errorResponse } = require("./responseController");
 
-const postAllTeacherRequests = async (req, res) => {
+const postAllTeacherRequests = async (req, res, next) => {
   try {
     const { name, email, category, experience } = req.body;
 
@@ -26,11 +26,12 @@ const postAllTeacherRequests = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
+    next(error);
     throw new error();
   }
 };
 
-const getAllTeacherRequests = async (req, res) => {
+const getAllTeacherRequests = async (req, res, next) => {
   try {
     const allRequests = await Teacher.find({});
     return successResponse(res, {
@@ -40,11 +41,32 @@ const getAllTeacherRequests = async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    throw new Error();
+    next(error);
   }
 };
 
-const approveTeacherRequest = async (req, res) => {
+const getMyTeacherRequest = async (req, res, next) => {
+  try {
+    const email = req.params.email;
+    if (!email) {
+      throw createError(400, "Bad request: Email is required");
+    }
+    const isUserExist = await Teacher.exists({ email });
+    if (!isUserExist) {
+      throw createError(400, "Bad request User does not exist");
+    }
+    const request = await Teacher.find({ email });
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Found user request",
+      payload: request,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const approveTeacherRequest = async (req, res, next) => {
   try {
     const id = req.params.id;
     const request = await Teacher.findById(id);
@@ -65,7 +87,7 @@ const approveTeacherRequest = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    throw new error();
+    next(error);
   }
 };
 
@@ -73,4 +95,5 @@ module.exports = {
   postAllTeacherRequests,
   approveTeacherRequest,
   getAllTeacherRequests,
+  getMyTeacherRequest,
 };
