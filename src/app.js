@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const stripe = require("stripe")(process.env.STRIPE_CLIENT_SECRET);
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const userRouter = require("./routers/userRouter");
@@ -9,6 +10,8 @@ const { errorResponse } = require("./controllers/responseController.js");
 const cors = require("cors");
 const authRouter = require("./routers/authRouter.js");
 const teacherRouter = require("./routers/teacherRouter.js");
+const paymentRouter = require("./routers/paymentRoute.js");
+const cartRouter = require("./routers/cartRouter.js");
 require("dotenv").config();
 const app = express();
 
@@ -29,6 +32,8 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/seed", seedRouter);
 app.use("/api/v1/courses", courseRouter);
 app.use("/api/v1/teachers", teacherRouter);
+app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/cart", cartRouter);
 
 app.get("/", async (req, res) => {
   res.json("Server choltase");
