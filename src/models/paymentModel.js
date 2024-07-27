@@ -2,6 +2,9 @@ const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema(
   {
+    courseName: {
+      type: [String],
+    },
     email: {
       type: String,
       required: true,

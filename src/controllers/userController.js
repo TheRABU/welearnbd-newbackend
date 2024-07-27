@@ -163,49 +163,6 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-// new method to signup user
-const newUserSignUpMethod = async (req, res, next) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const userIsExist = await User.exists({ email: email });
-    if (userIsExist) {
-      throw new createError(409, "User with email already exists");
-    }
-
-    const newCreatedUserInDatabase = new User({
-      name,
-      email,
-      password,
-    });
-
-    const savedUser = await newCreatedUserInDatabase.save();
-
-    const tokenPayload = {
-      savedUser,
-    };
-
-    // create jwt
-    // const token = createJSONWebToken(
-    //   tokenPayload,
-    //   process.env.JWT_SECRET_TOKEN,
-    //   "1hr"
-    // );
-
-    return successResponse(res, {
-      statusCode: 200,
-      message: "User registered successfully",
-      payload: savedUser,
-    });
-  } catch (error) {
-    console.error(
-      "Error during creating user using new controller:",
-      error.message
-    );
-    throw error;
-  }
-};
-
 // new method to login user
 const newLoginMethod = async (req, res, next) => {
   try {
@@ -452,6 +409,6 @@ module.exports = {
   updateUserAccount,
   manageUserStatus,
   updatePassword,
-  newUserSignUpMethod,
+
   testAdmin,
 };

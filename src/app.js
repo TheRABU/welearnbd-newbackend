@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const stripe = require("stripe")(process.env.STRIPE_CLIENT_SECRET);
 const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
-const userRouter = require("./routers/userRouter");
+// const userRouter = require("./routers/userRouter");
 const seedRouter = require("./routers/seedRouter.js");
 const courseRouter = require("./routers/courseRouter.js");
 const { errorResponse } = require("./controllers/responseController.js");
@@ -12,6 +12,7 @@ const authRouter = require("./routers/authRouter.js");
 const teacherRouter = require("./routers/teacherRouter.js");
 const paymentRouter = require("./routers/paymentRoute.js");
 const cartRouter = require("./routers/cartRouter.js");
+const newUserRouter = require("./routers/newuserRouter.js");
 require("dotenv").config();
 const app = express();
 
@@ -21,13 +22,27 @@ const rateLimiter = rateLimit({
   message: "Rate limit exceeded for this ip. Try again later",
 });
 
-app.use(cors());
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 // app.use(rateLimiter);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/api/v1/users", userRouter);
+// app.use("/api/v1/users", userRouter);
+app.use("/api/v1/new-users", newUserRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/seed", seedRouter);
 app.use("/api/v1/courses", courseRouter);

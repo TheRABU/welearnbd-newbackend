@@ -1,5 +1,6 @@
 const Course = require("../models/courseModel.js");
-
+const { successResponse } = require("./responseController.js");
+const createError = require("http-errors");
 /*
  TODO: Create newCourseController;
 */
@@ -25,22 +26,51 @@ const getSingleCourse = async (req, res) => {
     res.status(500).send(message);
   }
 };
+const getMyPublishedCourses = async (req, res, next) => {
+  try {
+    const email = req.params.email;
+    const findMyCourses = await Course.find({ teacherEmail: email });
+    if (!findMyCourses) {
+      throw createError(404, "Sorry no course found for your email");
+    }
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Found all the courses you published",
+      payload: findMyCourses,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
 // create a new course
 const createCourse = async (req, res) => {
-  const { courseName, teacherName, price, category, level, courseImage } =
-    req.body;
+  const {
+    courseName,
+    teacherName,
+    teacherEmail,
+    price,
+    category,
+    level,
+    courseImage,
+  } = req.body;
 
   try {
     const newCourse = new Course({
       courseName,
       teacherName,
+      teacherEmail,
       price,
       category,
       level,
       courseImage,
     });
     const course = await newCourse.save();
-    res.status(201).json(course);
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Success",
+      payload: course,
+    });
   } catch (error) {
     console.log(error.message);
     res.status(500).send(error);
@@ -57,10 +87,31 @@ const deleteCourse = async (req, res) => {
     res.status(500).send(message);
   }
 };
+const deleteMyPublihsedCourse = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const findMyCourse = await Course.findById({ _id: id });
+    if (!findMyCourse) {
+      return createError(404, "No such course found to delete");
+    }
+    const deletedCourse = await Course.findByIdAndDelete({ _id: id });
+
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Your Course Deleted Successfully",
+      payload: deletedCourse,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
 
 module.exports = {
   getAllCourses,
   getSingleCourse,
+  getMyPublishedCourses,
   createCourse,
   deleteCourse,
+  deleteMyPublihsedCourse,
 };
