@@ -9,7 +9,9 @@ const newUserSignUpMethod = async (req, res, next) => {
 
     const isAlreadyExist = await newUser.findOne({ email: email });
     if (isAlreadyExist) {
-      throw new createError(409, "User with this email already exist");
+      return res.status(400).json({
+        message: "User already exists, no need to signup just login",
+      });
     }
 
     const createNewUser = await newUser.create({ ...userInfo });
@@ -19,42 +21,42 @@ const newUserSignUpMethod = async (req, res, next) => {
       message: "User registered successfully",
       payload: createNewUser,
     });
-
-    // const userIsExist = await User.exists({ email: email });
-    // if (userIsExist) {
-    //   throw new createError(409, "User with email already exists");
-    // }
-
-    // const newCreatedUserInDatabase = new User({
-    //   name,
-    //   email,
-    //   password,
-    // });
-
-    // const savedUser = await newCreatedUserInDatabase.save();
-
-    // const tokenPayload = {
-    //   savedUser,
-    // };
-
-    // create jwt
-    // const token = createJSONWebToken(
-    //   tokenPayload,
-    //   process.env.JWT_SECRET_TOKEN,
-    //   "1hr"
-    // );
-
-    // return successResponse(res, {
-    //   statusCode: 200,
-    //   message: "User registered successfully",
-    //   payload: savedUser,
-    // });
   } catch (error) {
     console.error(
       "Error during creating user using new controller:",
       error.message
     );
-    throw error;
+    next(error);
+  }
+};
+
+// make admin controller
+const makeUserAdmin = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    // Check if user exists
+    const checkIfUserExist = await newUser.findById(id);
+    if (!checkIfUserExist) {
+      return res.status(400).json({
+        message: "User does not exist in Database!",
+      });
+    }
+
+    // Update user role to admin
+    const updatedUser = await newUser.findByIdAndUpdate(
+      id,
+      { $set: { role: "admin" } },
+      { new: true } // This returns the updated document
+    );
+
+    return res.status(200).json({
+      message: "User role updated to admin successfully!",
+      payload: updatedUser,
+    });
+  } catch (error) {
+    console.error(error.message);
+    next(error);
   }
 };
 
@@ -73,4 +75,52 @@ const getAllUser = async (req, res, next) => {
   }
 };
 
-module.exports = { newUserSignUpMethod, getAllUser };
+const deleteSingleUser = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const checkUser = await newUser.findById({ _id: id });
+    if (!checkUser) {
+      throw new createError(400, "User not found");
+    }
+    const deletedUser = await newUser.findByIdAndDelete({ _id: id });
+    return successResponse(res, {
+      statusCode: 200,
+      message: "Deleted Successfully",
+      payload: deletedUser,
+    });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
+const checkIfUserIsAdmin = async (req, res, next) => {
+  try {
+    const email = req.params.email;
+    console.log("Email taking from params", email);
+
+    if (email !== req.decoded.email) {
+      return res.status(403).send({ message: "unauthorized access" });
+    }
+    const user = await newUser.findOne({ email: email });
+    if (!user) {
+      throw createError(404, "User not found");
+    }
+    let admin = false;
+    if (user) {
+      admin = user?.role === "admin";
+    }
+    res.send({ admin });
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
+module.exports = {
+  newUserSignUpMethod,
+  getAllUser,
+  deleteSingleUser,
+  makeUserAdmin,
+  checkIfUserIsAdmin,
+};
