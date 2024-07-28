@@ -2,7 +2,7 @@ const createError = require("http-errors");
 const Cart = require("../models/cartModel.js");
 const { successResponse } = require("./responseController.js");
 
-const addToCart = async (req, res) => {
+const addToCart = async (req, res, next) => {
   try {
     const {
       cartItemId,
@@ -44,10 +44,11 @@ const addToCart = async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(error.status || 500).json({ message: error.message });
+    next(error);
   }
 };
 
-const getAllCartItems = async (req, res) => {
+const getAllCartItems = async (req, res, next) => {
   try {
     const email = req.query.email;
     const query = { email: email };
@@ -55,18 +56,18 @@ const getAllCartItems = async (req, res) => {
     res.status(200).send(findCartItems);
   } catch (error) {
     console.log(error.message);
-    throw new error();
+    next(error);
   }
 };
 
-const deleteCartItem = async (req, res) => {
+const deleteCartItem = async (req, res, next) => {
   try {
     const id = req.params.id;
     const deletedItem = await Cart.findOneAndDelete({ _id: id });
     res.status(200).send(deletedItem);
   } catch (error) {
     console.log(error.message);
-    throw new error();
+    next(error);
   }
 };
 

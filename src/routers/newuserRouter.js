@@ -15,5 +15,5 @@ newUserRouter.route("/").post(newUserSignUpMethod);
 newUserRouter.route("/getAll").get(verifyToken, verifyIsAdmin, getAllUser);
 newUserRouter.route("/:id").delete(deleteSingleUser);
 newUserRouter.route("/makeAdmin/:id").patch(makeUserAdmin);
-newUserRouter.route("/isUserAdmin/:email").get(verifyToken, checkIfUserIsAdmin);
+newUserRouter.route("/isUserAdmin/:email").get(checkIfUserIsAdmin);
 module.exports = newUserRouter;
