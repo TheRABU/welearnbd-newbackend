@@ -96,7 +96,7 @@ const deleteSingleUser = async (req, res, next) => {
 
 const checkIfUserIsAdmin = async (req, res, next) => {
   try {
-    const email = req.query.email;
+    const email = req.params.email;
     if (!email) {
       return res.status(400).json({ error: "Email parameter is missing" });
     }
@@ -104,16 +104,12 @@ const checkIfUserIsAdmin = async (req, res, next) => {
       return res.status(403).send({ message: "forbidden access" });
     }
     const user = await newUser.findOne({ email: email });
-    let admin = false;
-    if (user) {
-      admin = user?.role === "admin";
-    }
 
-    return successResponse(res, {
-      statusCode: 200,
-      message: "Found that user is admin",
-      payload: admin,
-    });
+    if (user && user.role === "admin") {
+      return res.status(200).json({ admin: true });
+    } else {
+      return res.status(200).json({ admin: false });
+    }
   } catch (error) {
     console.log(error.message);
     next(error);

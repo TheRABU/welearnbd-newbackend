@@ -6,6 +6,7 @@ const generateJwtToken = async (req, res, next) => {
     const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "2h",
     });
+
     res.send({ token });
   } catch (error) {
     console.log(error.message);

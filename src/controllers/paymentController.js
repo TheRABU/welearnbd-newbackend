@@ -52,11 +52,11 @@ const getMyPaymentHistory = async (req, res) => {
   try {
     const email = req.params.email;
     const query = { email: email };
-    // if (req.params.email !== req.decoded.email) {
-    //   return res
-    //     .status(403)
-    //     .send({ message: "forbidden access ja vaag shala!" });
-    // }
+    if (req.params.email !== req.decoded.email) {
+      return res
+        .status(403)
+        .send({ message: "forbidden access ja vaag shala!" });
+    }
     const findMyPayment = await Payment.find(query);
     res.status(200).send(findMyPayment);
   } catch (error) {
