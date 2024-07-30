@@ -29,6 +29,7 @@ const allowedOrigins = [
   "http://localhost:5174",
   "https://checkout.stripe.com",
   "https://firebase.google.com",
+  "https://we-learn-bd.web.app",
 ];
 
 const corsOptions = {
