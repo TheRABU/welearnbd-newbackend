@@ -9,7 +9,7 @@ const postAllTeacherRequests = async (req, res, next) => {
 
     const isTeacherExist = await Teacher.exists({ email: email });
     if (isTeacherExist) {
-      return createError(400, "User is already a teacher");
+      res.status(400).json({ message: "User is already a teacher" });
     }
     const teacherRequest = new Teacher({
       name,
@@ -23,6 +23,7 @@ const postAllTeacherRequests = async (req, res, next) => {
     return successResponse(res, {
       statusCode: 200,
       message: "Teacher request is submitted and pending approval",
+      payload: createRequest,
     });
   } catch (error) {
     console.log(error.message);
@@ -48,14 +49,18 @@ const getAllTeacherRequests = async (req, res, next) => {
 const getMyTeacherRequest = async (req, res, next) => {
   try {
     const email = req.params.email;
+
     if (!email) {
-      throw createError(400, "Bad request: Email is required");
+      throw createError(400, "Email Couldn't get from client side");
     }
-    const isUserExist = await Teacher.exists({ email });
-    if (!isUserExist) {
-      throw createError(400, "Bad request User does not exist");
+    if (email !== req.decoded.email) {
+      throw createError(403, "Forbidden Access");
     }
+
     const request = await Teacher.find({ email });
+    if (!request) {
+      res.status(404).json({ message: "Your request not found" });
+    }
     return successResponse(res, {
       statusCode: 200,
       message: "Found user request",
@@ -91,9 +96,31 @@ const approveTeacherRequest = async (req, res, next) => {
   }
 };
 
+const checkIfUserIsTeacher = async (req, res, next) => {
+  try {
+    const email = req.params.email;
+    if (!email) {
+      return res.status(400).json({ error: "Email parameter is missing" });
+    }
+    if (email !== req.decoded.email) {
+      return res.status(403).send({ message: "forbidden access" });
+    }
+    const teacher = await Teacher.findOne({ email: email });
+    if (teacher && teacher.status === "approved") {
+      return res.status(200).json({ teacher: true });
+    } else {
+      return res.status(200).json({ teacher: false });
+    }
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+};
+
 module.exports = {
   postAllTeacherRequests,
   approveTeacherRequest,
   getAllTeacherRequests,
   getMyTeacherRequest,
+  checkIfUserIsTeacher,
 };

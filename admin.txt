@@ -7,6 +7,12 @@ manush@human.com : AdamBpe123@ nwPass > Manush2@
 
 bal@matha.com : Bal345@# newPass > BalerMatha3!
 
+#### User 
+
+honda@user.com : Hond!@#RT45
+
+kona@queen.com : KonaRani234!@#
+
 
 ##### newAdmin
 
