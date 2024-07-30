@@ -28,6 +28,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "https://checkout.stripe.com",
+  "https://firebase.google.com",
 ];
 
 const corsOptions = {
@@ -42,7 +43,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// app.use(rateLimiter);
+app.use(rateLimiter);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
