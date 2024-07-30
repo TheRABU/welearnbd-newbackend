@@ -24,7 +24,11 @@ const rateLimiter = rateLimit({
   message: "Rate limit exceeded for this ip. Try again later",
 });
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://checkout.stripe.com",
+];
 
 const corsOptions = {
   origin: function (origin, callback) {
