@@ -30,6 +30,7 @@ const allowedOrigins = [
   "https://checkout.stripe.com",
   "https://firebase.google.com",
   "https://we-learn-bd.web.app",
+  "https://we-learn-bd.firebaseapp.com",
 ];
 
 const corsOptions = {
@@ -44,7 +45,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(rateLimiter);
+// app.use(rateLimiter);
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
