@@ -24,6 +24,12 @@ const addToCart = async (req, res, next) => {
     if (price < 0) {
       throw createError(401, "Price is invalid");
     }
+    const checkIfExist = await Cart.findById({ _id: cartItemId });
+    if (checkIfExist) {
+      res
+        .status(400)
+        .json({ message: "You already have that item in your cart" });
+    }
     // Create new cart item
     const newCartItem = new Cart({
       cartItemId,

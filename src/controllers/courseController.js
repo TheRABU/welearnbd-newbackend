@@ -29,10 +29,18 @@ const getSingleCourse = async (req, res) => {
 const getMyPublishedCourses = async (req, res, next) => {
   try {
     const email = req.params.email;
-    const findMyCourses = await Course.find({ teacherEmail: email });
-    if (!findMyCourses) {
-      throw createError(404, "Sorry no course found for your email");
+    if (email !== req.decoded.email) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized access could not identify user token" });
     }
+
+    const findMyCourses = await Course.find({ teacherEmail: email });
+    // if (findMyCourses.length === 0) {
+    //   return res
+    //     .status(404)
+    //     .json({ message: "Sorry, no courses found for your email" });
+    // }
     return successResponse(res, {
       statusCode: 200,
       message: "Found all the courses you published",
