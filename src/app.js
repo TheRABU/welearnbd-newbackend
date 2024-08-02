@@ -15,6 +15,7 @@ const paymentRouter = require("./routers/paymentRoute.js");
 const cartRouter = require("./routers/cartRouter.js");
 const newUserRouter = require("./routers/newuserRouter.js");
 const jwtRouter = require("./routers/jwtRouter.js");
+const adminRouter = require("./routers/adminRouter.js");
 require("dotenv").config();
 const app = express();
 
@@ -59,6 +60,7 @@ app.use("/api/v1/teachers", teacherRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/jwt", jwtRouter);
+app.use("/api/v1/admin", adminRouter);
 
 app.get("/", async (req, res) => {
   res.json("Server choltase");
