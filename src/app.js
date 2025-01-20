@@ -32,18 +32,25 @@ const allowedOrigins = [
   "https://firebase.google.com",
   "https://we-learn-bd.web.app",
   "https://we-learn-bd.firebaseapp.com",
+  "https://we-learn-bd.sifatulrabbi.com",
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+      callback(null, origin);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
 };
+
+// Ensure no other middleware is setting the Access-Control-Allow-Origin header
+app.use((req, res, next) => {
+  res.removeHeader("Access-Control-Allow-Origin");
+  next();
+});
 
 app.use(cors(corsOptions));
 // app.use(rateLimiter);
