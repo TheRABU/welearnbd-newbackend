@@ -33,6 +33,7 @@ const allowedOrigins = [
   "https://we-learn-bd.web.app",
   "https://we-learn-bd.firebaseapp.com",
   "https://we-learn-bd.sifatulrabbi.com",
+  "https://welearnbd.vercel.app",
 ];
 
 const corsOptions = {
@@ -46,11 +47,11 @@ const corsOptions = {
   credentials: true,
 };
 
-// Ensure no other middleware is setting the Access-Control-Allow-Origin header
-app.use((req, res, next) => {
-  res.removeHeader("Access-Control-Allow-Origin");
-  next();
-});
+// // Ensure no other middleware is setting the Access-Control-Allow-Origin header
+// app.use((req, res, next) => {
+//   res.removeHeader("Access-Control-Allow-Origin");
+//   next();
+// });
 
 app.use(cors(corsOptions));
 // app.use(rateLimiter);
